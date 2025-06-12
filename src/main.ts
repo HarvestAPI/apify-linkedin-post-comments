@@ -31,6 +31,9 @@ if (!input.posts?.length) {
 const { actorId, actorRunId, actorBuildId, userId, actorMaxPaidDatasetItems, memoryMbytes } =
   Actor.getEnv();
 
+const client = Actor.newClient();
+const user = userId ? await client.user(userId).get() : null;
+
 const scraper = createLinkedinScraper({
   apiKey: process.env.HARVESTAPI_TOKEN!,
   baseUrl: process.env.HARVESTAPI_URL || 'https://api.harvest-api.com',
@@ -41,6 +44,8 @@ const scraper = createLinkedinScraper({
     'x-apify-actor-build-id': actorBuildId!,
     'x-apify-memory-mbytes': String(memoryMbytes),
     'x-apify-actor-max-paid-dataset-items': String(actorMaxPaidDatasetItems) || '0',
+    'x-apify-username': user?.username || '',
+    'x-apify-user-is-paying': (user as Record<string, any> | null)?.isPaying,
   },
 });
 
