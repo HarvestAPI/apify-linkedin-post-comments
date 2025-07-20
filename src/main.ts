@@ -17,6 +17,7 @@ await Actor.init();
 interface Input {
   posts: string[];
   maxItems?: number;
+  postedLimit: '24h' | 'week' | 'month';
 }
 // Structure of input is defined in input_schema.json
 const input = await Actor.getInput<Input>();
@@ -59,7 +60,7 @@ let datasetLastPushPromise: Promise<any> | undefined;
 
 const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
   await scraper.scrapePostComments({
-    query: { post },
+    query: { post, postedLimit: input.postedLimit },
     outputType: 'callback',
     onItemScraped: async ({ item }) => {
       console.info(`Scraped comment ${item?.id}`);

@@ -18,6 +18,13 @@
       "type": "integer",
       "description": "Maximum number of comments to scrape per each post",
       "prefill": 10
+    },
+    "postedLimit": {
+      "title": "Posted Limit (filter)",
+      "type": "string",
+      "description": "Fetch posts no older than X time. Options: '24h', 'week', 'month'.",
+      "editor": "select",
+      "enum": ["any", "24h", "week", "month"]
     }
   }
 }
