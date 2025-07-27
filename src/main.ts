@@ -59,8 +59,10 @@ let totalItemsCounter = 0;
 let datasetLastPushPromise: Promise<any> | undefined;
 
 const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
+  const query = { post, postedLimit: input.postedLimit };
+
   await scraper.scrapePostComments({
-    query: { post, postedLimit: input.postedLimit },
+    query,
     outputType: 'callback',
     onItemScraped: async ({ item }) => {
       console.info(`Scraped comment ${item?.id}`);
@@ -72,7 +74,10 @@ const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
         process.exit(0);
       }
 
-      datasetLastPushPromise = Actor.pushData(item);
+      datasetLastPushPromise = Actor.pushData({
+        ...item,
+        query,
+      });
     },
     overrideConcurrency: 2,
     maxItems,
