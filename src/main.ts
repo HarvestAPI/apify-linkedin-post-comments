@@ -56,7 +56,6 @@ if (actorMaxPaidDatasetItems && maxItems && maxItems > actorMaxPaidDatasetItems)
 }
 
 let totalItemsCounter = 0;
-let datasetLastPushPromise: Promise<any> | undefined;
 
 const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
   const query = { post, postedLimit: input.postedLimit };
@@ -69,12 +68,15 @@ const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
       totalItemsCounter++;
 
       if (actorMaxPaidDatasetItems && totalItemsCounter > actorMaxPaidDatasetItems) {
-        console.warn('Max items reached, exiting...');
-        await Promise.all([datasetLastPushPromise, Actor.exit()]);
-        process.exit(0);
+        setTimeout(async () => {
+          console.warn('Max items reached, exiting...');
+          await Actor.exit();
+          process.exit(0);
+        }, 1000);
+        return;
       }
 
-      datasetLastPushPromise = Actor.pushData({
+      await Actor.pushData({
         ...item,
         query,
       });
@@ -86,7 +88,6 @@ const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
 });
 
 await Promise.all(input.posts.map((post) => scrapePostQueue(post)));
-await datasetLastPushPromise;
 
 // Gracefully exit the Actor process. It's recommended to quit all Actors with an exit().
 await Actor.exit();
