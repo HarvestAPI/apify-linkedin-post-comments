@@ -1,5 +1,5 @@
 // Apify SDK - toolkit for building Apify Actors (Read more at https://docs.apify.com/sdk/js/).
-import { createLinkedinScraper } from '@harvestapi/scraper';
+import { createLinkedinScraper, PostComment } from '@harvestapi/scraper';
 import { Actor } from 'apify';
 import { config } from 'dotenv';
 import { createConcurrentQueues } from './utils/queue.js';
@@ -57,6 +57,28 @@ if (actorMaxPaidDatasetItems && maxItems && maxItems > actorMaxPaidDatasetItems)
 
 let totalItemsCounter = 0;
 
+const pushData = createConcurrentQueues(
+  190,
+  async (item: PostComment, query: Record<string, any>) => {
+    console.info(`Scraped comment ${item?.id}`);
+    totalItemsCounter++;
+
+    if (actorMaxPaidDatasetItems && totalItemsCounter > actorMaxPaidDatasetItems) {
+      setTimeout(async () => {
+        console.warn('Max items reached, exiting...');
+        await Actor.exit();
+        process.exit(0);
+      }, 1000);
+      return;
+    }
+
+    await Actor.pushData({
+      ...item,
+      query,
+    });
+  },
+);
+
 const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
   const query = { post, postedLimit: input.postedLimit };
 
@@ -64,22 +86,9 @@ const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
     query,
     outputType: 'callback',
     onItemScraped: async ({ item }) => {
-      console.info(`Scraped comment ${item?.id}`);
-      totalItemsCounter++;
-
-      if (actorMaxPaidDatasetItems && totalItemsCounter > actorMaxPaidDatasetItems) {
-        setTimeout(async () => {
-          console.warn('Max items reached, exiting...');
-          await Actor.exit();
-          process.exit(0);
-        }, 1000);
-        return;
+      if (item) {
+        await pushData(item, query);
       }
-
-      await Actor.pushData({
-        ...item,
-        query,
-      });
     },
     overrideConcurrency: 2,
     maxItems,
