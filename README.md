@@ -8,7 +8,6 @@ Our powerful tool helps you extract LinkedIn post comments, as well as comment s
 - Low pricing: $2 per 1k comments.
 - Fast response times deliver data in seconds 🚀
 - No caching, fresh data.
-- Concurrency: each actor works scraping 6 posts at a time.
 
 ## How It Works
 
@@ -17,6 +16,8 @@ Our powerful tool helps you extract LinkedIn post comments, as well as comment s
 Other params (optionally):
 
 - `maxItems` - Maximum number of comments to scrape per each post. If you set to 0, it will scrape all available pages or up to 100 pages (each page 10 items) per post.
+- `postedLimit` - Limit comments to those posted within a certain timeframe. Supported values: `24h`, `week`, `month`, `3months`, `6months`, `year`. Default is to scrape all comments.
+- `profileScraperMode` - Set this to `main` to enrich comment actors with main profile data (position, profile picture, etc.). Note that this will increase the cost of the actor as profile scraping is charged separately.
 
 ### Data You'll Receive
 
