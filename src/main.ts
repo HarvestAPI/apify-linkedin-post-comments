@@ -69,7 +69,6 @@ const shouldScrapeProfiles =
 const pushData = createConcurrentQueues(
   shouldScrapeProfiles ? 20 : 190,
   async (item: PostComment, query: Record<string, any>) => {
-    console.info(`Scraped comment ${item?.id}`);
     totalItemsCounter++;
 
     if (actorMaxPaidDatasetItems && totalItemsCounter > actorMaxPaidDatasetItems) {
@@ -118,6 +117,8 @@ const pushData = createConcurrentQueues(
     } else {
       await Actor.pushData({ ...item, query });
     }
+
+    console.info(`Scraped comment ${item?.id}`);
   },
 );
 
