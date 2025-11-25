@@ -80,13 +80,29 @@ const pushData = createConcurrentQueues(
       return;
     }
 
-    if (item.actor?.linkedinUrl && shouldScrapeProfiles) {
-      const { profile } = await scrapeProfile({
-        scraper,
-        linkedinUrl: item.actor.linkedinUrl,
-      });
-      if (profile?.id) {
-        item.actor = { ...item.actor, ...profile };
+    if (shouldScrapeProfiles) {
+      if (item.actor?.linkedinUrl) {
+        const { profile } = await scrapeProfile({
+          scraper,
+          linkedinUrl: item.actor.linkedinUrl,
+        });
+        if (profile?.id) {
+          item.actor = { ...item.actor, ...profile };
+        }
+      }
+
+      if (item.replies?.length) {
+        for (const reply of item.replies) {
+          if (reply.actor?.linkedinUrl) {
+            const { profile } = await scrapeProfile({
+              scraper,
+              linkedinUrl: reply.actor.linkedinUrl,
+            });
+            if (profile?.id) {
+              reply.actor = { ...reply.actor, ...profile };
+            }
+          }
+        }
       }
     }
 
