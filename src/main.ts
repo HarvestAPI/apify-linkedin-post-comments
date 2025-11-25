@@ -85,6 +85,7 @@ const pushData = createConcurrentQueues(
         const { profile } = await scrapeProfile({
           scraper,
           linkedinUrl: item.actor.linkedinUrl,
+          pricingInfo,
         });
         if (profile?.id) {
           item.actor = { ...item.actor, ...profile };
@@ -97,6 +98,7 @@ const pushData = createConcurrentQueues(
             const { profile } = await scrapeProfile({
               scraper,
               linkedinUrl: reply.actor.linkedinUrl,
+              pricingInfo,
             });
             if (profile?.id) {
               reply.actor = { ...reply.actor, ...profile };

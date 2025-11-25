@@ -1,10 +1,7 @@
 import { LinkedinScraper, Profile } from '@harvestapi/scraper';
 import { createConcurrentQueuesPerKey } from './utils/queue.js';
 import { LRUCache } from 'lru-cache';
-import { Actor } from 'apify';
-
-const cm = Actor.getChargingManager();
-const pricingInfo = cm.getPricingInfo();
+import { Actor, ActorPricingInfo } from 'apify';
 
 const profileCache = new LRUCache({ maxSize: 500 });
 
@@ -14,9 +11,11 @@ export const scrapeProfile = createConcurrentQueuesPerKey(
   async ({
     scraper,
     linkedinUrl,
+    pricingInfo,
   }: {
     scraper: LinkedinScraper;
     linkedinUrl: string;
+    pricingInfo: ActorPricingInfo;
   }): Promise<{ profile: Profile | null }> => {
     let profile: Profile | null = null;
 
