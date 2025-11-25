@@ -19,6 +19,7 @@ interface Input {
   posts: string[];
   maxItems?: number;
   postedLimit: '24h' | 'week' | 'month';
+  profileScraperMode: 'short' | 'main' | 'full' | 'full_email_search';
 }
 // Structure of input is defined in input_schema.json
 const input = await Actor.getInput<Input>();
@@ -35,6 +36,8 @@ const { actorId, actorRunId, actorBuildId, userId, actorMaxPaidDatasetItems, mem
 
 const client = Actor.newClient();
 const user = userId ? await client.user(userId).get() : null;
+const cm = Actor.getChargingManager();
+const pricingInfo = cm.getPricingInfo();
 
 const scraper = createLinkedinScraper({
   apiKey: process.env.HARVESTAPI_TOKEN!,
@@ -57,6 +60,10 @@ if (actorMaxPaidDatasetItems && maxItems && maxItems > actorMaxPaidDatasetItems)
 }
 
 let totalItemsCounter = 0;
+const shouldScrapeProfiles =
+  input.profileScraperMode === 'main' ||
+  input.profileScraperMode === 'full' ||
+  input.profileScraperMode === 'full_email_search';
 
 const pushData = createConcurrentQueues(
   190,
@@ -72,10 +79,34 @@ const pushData = createConcurrentQueues(
       return;
     }
 
-    await Actor.pushData({
-      ...item,
-      query,
-    });
+    if (item.actor?.linkedinUrl && shouldScrapeProfiles) {
+      const profile = await scraper
+        .getProfile({
+          url: item.actor?.linkedinUrl,
+          short: true,
+        })
+        .catch((err) => {
+          console.warn(`Failed to fetch profile ${item.actor?.linkedinUrl}: ${err.message}`);
+          return null;
+        });
+      if (profile?.element?.id) {
+        if (pricingInfo.isPayPerEvent) {
+          Actor.charge({ eventName: 'main-profile' });
+        }
+        item.actor = { ...item.actor, ...profile.element };
+      }
+    }
+
+    // new events:
+    // post-comment
+    // main-profile
+    // full-profile
+    // full-profile-with-email
+    if (pricingInfo.isPayPerEvent) {
+      await Actor.pushData({ ...item, query }, 'post-comment');
+    } else {
+      await Actor.pushData({ ...item, query });
+    }
   },
 );
 
