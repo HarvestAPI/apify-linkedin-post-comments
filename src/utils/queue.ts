@@ -47,3 +47,21 @@ export function createConcurrentQueues<TArgs extends unknown[] = unknown[], TRes
     });
   };
 }
+
+export function createConcurrentQueuesPerKey<TArgs extends any[], TRes = any>(
+  keyGetter: (...args: TArgs) => string,
+  queuesNumber: number,
+  fn: AsyncFunction<TArgs, TRes>,
+): AsyncFunction<TArgs, TRes> {
+  const queues: Record<string, AsyncFunction<TArgs, TRes>> = {};
+
+  return async (...args: TArgs) => {
+    const key = keyGetter(...args);
+
+    if (!queues[key]) {
+      queues[key] = createConcurrentQueues(queuesNumber, fn);
+    }
+
+    return queues[key](...args);
+  };
+}

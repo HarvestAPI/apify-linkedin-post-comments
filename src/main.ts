@@ -4,6 +4,7 @@ import { Actor } from 'apify';
 import { config } from 'dotenv';
 import { createConcurrentQueues } from './utils/queue.js';
 import { subMonths } from 'date-fns';
+import { scrapeProfile } from './scrapeProfile.js';
 
 config();
 
@@ -80,20 +81,12 @@ const pushData = createConcurrentQueues(
     }
 
     if (item.actor?.linkedinUrl && shouldScrapeProfiles) {
-      const profile = await scraper
-        .getProfile({
-          url: item.actor?.linkedinUrl,
-          short: true,
-        })
-        .catch((err) => {
-          console.warn(`Failed to fetch profile ${item.actor?.linkedinUrl}: ${err.message}`);
-          return null;
-        });
-      if (profile?.element?.id) {
-        if (pricingInfo.isPayPerEvent) {
-          Actor.charge({ eventName: 'main-profile' });
-        }
-        item.actor = { ...item.actor, ...profile.element };
+      const { profile } = await scrapeProfile({
+        scraper,
+        linkedinUrl: item.actor.linkedinUrl,
+      });
+      if (profile?.id) {
+        item.actor = { ...item.actor, ...profile };
       }
     }
 
