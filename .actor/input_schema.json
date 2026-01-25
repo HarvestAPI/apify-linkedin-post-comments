@@ -26,6 +26,12 @@
       "editor": "select",
       "enum": ["any", "24h", "week", "month", "3months", "6months", "year"]
     },
+    "scrapeReplies": {
+      "title": "Scrape Replies",
+      "type": "boolean",
+      "description": "Whether to scrape replies to comments.",
+      "prefill": false
+    },
     "profileScraperMode": {
       "title": "Profile Scraper Mode",
       "type": "string",

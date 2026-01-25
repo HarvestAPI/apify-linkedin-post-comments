@@ -21,6 +21,7 @@ interface Input {
   maxItems?: number;
   postedLimit: '24h' | 'week' | 'month';
   profileScraperMode: 'short' | 'main' | 'full' | 'full_email_search';
+  scrapeReplies?: boolean;
 }
 // Structure of input is defined in input_schema.json
 const input = await Actor.getInput<Input>();
@@ -153,7 +154,7 @@ const scrapePostQueue = createConcurrentQueues(
           { url: post },
         );
 
-        if (comment.element.replies?.length) {
+        if (comment.element.replies?.length && input.scrapeReplies) {
           const query = { url: post };
           await scraper.scrapePostCommentReplies({
             query: { url: post },

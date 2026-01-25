@@ -15,7 +15,7 @@ Our powerful tool helps you extract LinkedIn post comments, scrape comments or r
 
 When a post URL provided, the actor will scrape all comments under the post. It will also collect up to 5 replies to comments. Replies in this case are nested inside comments, so they won't be counted as separate results. Please note that the total count of results will be different from LinkedIn's counter, because LinkedIn counts comments and replies while we count only root comments.
 
-When a post comment URL is provided, the actor will scrape that specific comment and all its replies. Replies in this case will be counted as separate results.
+When a post comment URL is provided, the actor will scrape only that specific comment with a limited number of nested replies. If you wish to scrape all replies to that comment, enable the `Scrape Replies` input toggle - in this case, replies will be counted as separate results.
 
 Other params (optionally):
 
