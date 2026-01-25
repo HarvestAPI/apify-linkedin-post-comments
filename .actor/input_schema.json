@@ -10,7 +10,8 @@
       "description": "Queries to search LinkedIn profiles by name.",
       "prefill": [
         "https://www.linkedin.com/posts/microsoft-events_microsoft-build-has-arrived-in-seattle-and-ugcPost-7329991434395160578-GnK7?utm_source=share&utm_medium=member_desktop&rcm=ACoAACzazy4B3ajZsA0WxWr6m4S77iItYbYCLZM",
-        "https://www.linkedin.com/feed/update/urn:li:activity:7320867199693246465/"
+        "https://www.linkedin.com/feed/update/urn:li:activity:7320867199693246465/",
+        "https://www.linkedin.com/feed/update/urn:li:ugcPost:7396563121059872768?commentUrn=urn%3Ali%3Acomment%3A%28ugcPost%3A7396563121059872768%2C7396565439390076928%29&dashCommentUrn=urn%3Ali%3Afsd_comment%3A%287396565439390076928%2Curn%3Ali%3AugcPost%3A7396563121059872768%29"
       ]
     },
     "maxItems": {
