@@ -153,37 +153,39 @@ const scrapePostQueue = createConcurrentQueues(
           { url: post },
         );
 
-        const query = { url: post };
-        await scraper.scrapePostCommentReplies({
-          query: { url: post },
-          outputType: 'callback',
-          onPageFetched: async ({ data }) => {
-            if (data?.elements) {
-              data.elements = data.elements.filter((item) => {
-                if (maxDate && item?.createdAt) {
-                  const createdAt = new Date(item.createdAt);
-                  if (createdAt < maxDate) return false;
-                }
-                return true;
-              });
-            }
-          },
-          onItemScraped: async ({ item }) => {
-            if (item) {
-              await pushData(
-                {
-                  type: 'REPLY',
-                  ...item,
-                } as PostComment,
-                query,
-              );
-            }
-          },
-          overridePageConcurrency: 2,
-          overrideConcurrency: 30,
-          maxItems,
-          disableLog: true,
-        });
+        if (comment.element.replies?.length) {
+          const query = { url: post };
+          await scraper.scrapePostCommentReplies({
+            query: { url: post },
+            outputType: 'callback',
+            onPageFetched: async ({ data }) => {
+              if (data?.elements) {
+                data.elements = data.elements.filter((item) => {
+                  if (maxDate && item?.createdAt) {
+                    const createdAt = new Date(item.createdAt);
+                    if (createdAt < maxDate) return false;
+                  }
+                  return true;
+                });
+              }
+            },
+            onItemScraped: async ({ item }) => {
+              if (item) {
+                await pushData(
+                  {
+                    type: 'REPLY',
+                    ...item,
+                  } as PostComment,
+                  query,
+                );
+              }
+            },
+            overridePageConcurrency: 2,
+            overrideConcurrency: 30,
+            maxItems,
+            disableLog: true,
+          });
+        }
       }
     } else {
       const query = { post };

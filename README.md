@@ -1,6 +1,6 @@
 ## LinkedIn Post Comments Mass scraper
 
-Our powerful tool helps you extract LinkedIn post comments, as well as comment social activities such as likes and reactions without compromising security or violating platform policies. It is very helpful for engagement analysis and outreach purposes.
+Our powerful tool helps you extract LinkedIn post comments, scrape comments or replies to comments as well as comment social activities such as likes and reactions without compromising security or violating platform policies. It is very helpful for engagement analysis and outreach purposes.
 
 ### Key Benefits
 
@@ -11,7 +11,11 @@ Our powerful tool helps you extract LinkedIn post comments, as well as comment s
 
 ## How It Works
 
-- (required) List of post URLs to scrape.
+- (required) List of: Post URLs or post comments URL to scrape.
+
+When a post URL provided, the actor will scrape all comments under the post. It will also collect up to 5 replies to comments. Replies in this case are nested inside comments, so they won't be counted as separate results. Please note that the total count of results will be different from LinkedIn's counter, because LinkedIn counts comments and replies while we count only root comments.
+
+When a post comment URL is provided, the actor will scrape that specific comment and all its replies. Replies in this case will be counted as separate results.
 
 Other params (optionally):
 
