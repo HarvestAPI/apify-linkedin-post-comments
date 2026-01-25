@@ -139,34 +139,81 @@ if (input.postedLimit === '24h') {
   maxDate = subMonths(new Date(), 12);
 }
 
-const scrapePostQueue = createConcurrentQueues(6, async (post: string) => {
-  const query = { post };
+const scrapePostQueue = createConcurrentQueues(
+  shouldScrapeProfiles ? 2 : 6,
+  async (post: string) => {
+    if (post?.includes('dashCommentUrn')) {
+      const comment = await scraper.getSinglePostComment({ url: post });
+      if (comment?.element?.id) {
+        await pushData(
+          {
+            type: 'COMMENT',
+            ...comment.element,
+          } as any,
+          { url: post },
+        );
 
-  await scraper.scrapePostComments({
-    query,
-    outputType: 'callback',
-    onPageFetched: async ({ data }) => {
-      if (data?.elements) {
-        data.elements = data.elements.filter((item) => {
-          if (maxDate && item?.createdAt) {
-            const createdAt = new Date(item.createdAt);
-            if (createdAt < maxDate) return false;
-          }
-          return true;
+        const query = { url: post };
+        await scraper.scrapePostCommentReplies({
+          query: { url: post },
+          outputType: 'callback',
+          onPageFetched: async ({ data }) => {
+            if (data?.elements) {
+              data.elements = data.elements.filter((item) => {
+                if (maxDate && item?.createdAt) {
+                  const createdAt = new Date(item.createdAt);
+                  if (createdAt < maxDate) return false;
+                }
+                return true;
+              });
+            }
+          },
+          onItemScraped: async ({ item }) => {
+            if (item) {
+              await pushData(
+                {
+                  type: 'REPLY',
+                  ...item,
+                } as PostComment,
+                query,
+              );
+            }
+          },
+          overridePageConcurrency: 2,
+          overrideConcurrency: 30,
+          maxItems,
+          disableLog: true,
         });
       }
-    },
-    onItemScraped: async ({ item }) => {
-      if (item) {
-        await pushData(item, query);
-      }
-    },
-    overridePageConcurrency: 2,
-    overrideConcurrency: 30,
-    maxItems,
-    disableLog: true,
-  });
-});
+    } else {
+      const query = { post };
+      await scraper.scrapePostComments({
+        query,
+        outputType: 'callback',
+        onPageFetched: async ({ data }) => {
+          if (data?.elements) {
+            data.elements = data.elements.filter((item) => {
+              if (maxDate && item?.createdAt) {
+                const createdAt = new Date(item.createdAt);
+                if (createdAt < maxDate) return false;
+              }
+              return true;
+            });
+          }
+        },
+        onItemScraped: async ({ item }) => {
+          if (item) {
+            await pushData(item, query);
+          }
+        },
+        overridePageConcurrency: 2,
+        overrideConcurrency: 30,
+        maxItems,
+        disableLog: true,
+      });
+    }
+  },
+);
 
 await Promise.all(input.posts.map((post) => scrapePostQueue(post)));
 

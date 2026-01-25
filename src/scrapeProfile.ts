@@ -38,7 +38,7 @@ export const scrapeProfile = createConcurrentQueuesPerKey(
         } else {
           result = await scraper.getProfile({
             url: linkedinUrl,
-            short: true,
+            main: true,
           });
         }
 
