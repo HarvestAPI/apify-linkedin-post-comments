@@ -68,7 +68,7 @@ const shouldScrapeProfiles =
   input.profileScraperMode === 'full_email_search';
 
 const pushData = createConcurrentQueues(
-  shouldScrapeProfiles ? 20 : 190,
+  shouldScrapeProfiles ? 10 : 190,
   async (item: PostComment, query: Record<string, any>) => {
     totalItemsCounter++;
 
